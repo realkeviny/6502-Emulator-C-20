@@ -1,0 +1,14 @@
+# IDE / Editor configs
+.vscode/
+
+
+# Build directories
+build/
+bin/
+out/
+
+# Compiled files
+*.o
+*.obj
+*.exe
+*.png
