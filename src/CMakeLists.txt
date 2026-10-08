@@ -1,0 +1,9 @@
+set(LIBRARY_MODULE_FOR_CPU "CPU.ixx")
+
+add_library(${LIBRARY_NAME} STATIC)
+
+target_sources(${LIBRARY_NAME}
+    PUBLIC
+        FILE_SET CXX_MODULES TYPE CXX_MODULES FILES
+            ${LIBRARY_MODULE_FOR_CPU}
+)

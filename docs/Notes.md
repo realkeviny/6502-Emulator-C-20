@@ -1,7 +1,7 @@
 # Host Architecture & System Philosophy
 
-- **Host Memory Allocation** The emulator allocates no heap memory; the entire 64 KB RAM is allocated statically on the host machine's stack or data segment.
-- **Hardware Interfacing Principle** The CPU reads and writes its internal registers and memory autonomously. However, without Memory-Mapped I/O, external state visibility is impossible. Interfacing with peripherals is what brings the hardware to life.
+- **Host Memory Allocation** The emulator allocates no heap memory; the entire 64 KB RAM is allocated statically on the host machine's stack.
+- **Hardware Interfacing Principle** The CPU reads and writes its internal registers and memory autonomously. However, without I/O, I will never be able to see any output from this CPU. Interfacing with peripherals is what brings the hardware to life.
 - **System Dependency** The 6502 **cannot operate without memory**. To execute any instructions, the CPU minimum requirements include:
   - **Zero Page (`$0000 - $00FF`)**: Most core instructions directly rely on it for operands and addressing.
   - **Stack Pointer (SP)**: Must point to a valid memory region to handle stack operations and execution context.
@@ -12,9 +12,9 @@
 
 **Register**: A small, high-speed memory storage area directly accessible by the processor.
 
-**Zero Page(`$0000 - $00FF`)**: The first 256 bytes of memory space.
+**Zero Page(`$0000 - $00FF`)**: The first 256 bytes of memory.
 
-- Special addressing modes allow accessing this page **one cycle faster** than elsewhere.
+- Special addressing modes across most instructions allow accessing this page **one cycle faster** than elsewhere.
 
 - Functions effectively as a set of additional general-purpose registers to minimize clock cycle consumption.
 
@@ -44,7 +44,7 @@
 
 - A single byte containing individual flags set depending on instruction outcomes or hardware events (e.g., IRQ - Interrupt Request).
 
-![Processor Flags](F:\6502-Emulator-C++20\Processor Flags.png)
+![Processor Flags](F:\6502-Emulator-C-20\Processor Flags.png)
 
 # Mechanisms
 
@@ -52,7 +52,7 @@
 
 * **Implementation**:    
   1. Locate the hardcoded Reset Vector at memory address `$FFFC`.    
-  2. Set `PC` to this target address to begin executing the kernel/boot routine in ROM.
+  2. Jump to this target address to begin executing the kernel/boot routine in ROM.
 
 **Executing Instructions:**
 
@@ -62,7 +62,7 @@
 
 2. Implementation
 
-​		(1) Pass in `Memory` (where instructions and data reside) and the requested execution cycle count.
+​		(1) Pass in `Memory` (where instructions and data reside) and the requested execution cycle count(for I may want CPU to execute a certain number of instructions/stop while other things are happening).
 
 ​		(2) Run an execution loop, decrementing the cycle counter until no cycles remain, then return.
 
@@ -70,7 +70,7 @@
 
 ​		(4) `switch` on the fetched Opcode.
 
-​		(5) Execute the corresponding instruction logic.
+​		(5) Do the operation stated on the instruction.
 
 **Fetching Instructions:**
 
@@ -83,7 +83,7 @@ Fetch the next thing that is pointed to by the program counter.
 2.  Implementation
 
 - Read a byte from memory at the address stored in PC.
-- Increment the program counter (`PC++`).
+- Increment the program counter (`PC++`) (every time I fetch, the program counter moves to the next step).
 - Decrement the CPU cycle count by 1.
 - Return the fetched byte.
 
@@ -95,17 +95,17 @@ Take a byte of data, and put it into the accumulator.
 
 Flag Set: ZERO and NEGATIVE as appropriate.
 
-![LDA OpCode Table](F:\6502-Emulator-C++20\LDA OpCode Table.png)
+![LDA OpCode Table](F:\6502-Emulator-C-20\LDA OpCode Table.png)
 
-**Addressing Mode**: The mechanism used by an instruction to locate its operand in memory.
+**Addressing Mode**: The mechanism used by an instruction to locate its operand in memory(Different ways to call an instruction).
 
-**Opcode**: The single-byte machine code fetched from memory that identifies the instruction.
+**Opcode**: The single-byte machine code fetched from memory that identifies the instruction(The code that the machine actually reads).
 
-**Length in Bytes**: Total memory footprint of an instruction (e.g., LDA Immediate takes 2 bytes: 1 for the Opcode, 1 for the immediate data).
+**Length in Bytes**: How many bytes the total instruction needs to take up (e.g., LDA Immediate takes 2 bytes: 1 for the Opcode, 1 for the immediate data).
 
 **Addressing Mode :Immediate**
 
-**Cycle Count (2 Cycles)**: The 6502 is an 8-bit architecture; each clock cycle can only perform a single 8-bit data bus transfer.
+**Cycle Count (2 Cycles)**: The 6502 is an 8-bit processor; each clock cycle can only access the 8-bit data bus once.
 
 **Cycle Breakdown**:
 
@@ -121,7 +121,7 @@ The next byte after the opcode is the address in zero page.
 **Cycle Breakdown (3 Cycles)**:
 
 1. **Cycle 1**: Fetch the Opcode via `FetchByte()`.
-2. **Cycle 2**: Fetch the 1-byte Zero Page address from the instruction stream via `FetchByte()`.
+2. **Cycle 2**: Fetch the 1-byte Zero Page address stored in machine code.
 3. **Cycle 3**: Read the target data byte from the fetched Zero Page address via `ReadByte()`.
 
 **Implementation:**
@@ -133,11 +133,10 @@ The next byte after the opcode is the address in zero page.
 
   **Execution Flow**:
 
-  1. Fetch the Zero Page target address from code stream (`PC++`).
+  1. Fetch the Zero Page target address from memory(`PC++`).
   2. Read the byte from the calculated Zero Page address (preserving `PC`).
   3. Load the fetched byte into the accumulator (`A`).
   4. Update processor status flags (`Z` and `N`).
-
 
 **Addressing Mode: Zeropage X**
 
@@ -155,9 +154,11 @@ The address to be accessed by an instruction is indexed using zero page.
 * 1 cycle: Add the X value onto the zeropage address. 
 * 1 cycle: Read the byte.
 
+**Note:** The address calculation wraps around if the sum of the base address and the register exceed $FF.
+
 # Jump to Subroutine(JSR)
 
-![JSR opcode table](F:\6502-Emulator-C++20\JSR opcode table.png)
+![JSR opcode table](F:\6502-Emulator-C-20\JSR opcode table.png)
 
 Pushes the return address minus one (PC - 1) onto the stack, then sets the program counter to the target memory address.
 
@@ -179,7 +180,7 @@ Cycle Summary (6 Cycles):
 * 1 cycle to fetch the Opcode ($20). 
 * 2 cycles to fetch the 16-bit target address via `FetchWord()`. 
 * 2 cycles to push the 2-byte return address (`PC - 1`) onto the stack. 
-* 1 internal cycle to complete the PC jump.
+* 1 internal cycle to let the PC jump onto the address I want to jump to.
 
 Expected Effect: Executes a jump to a subroutine (e.g., $7777), pushing the return address onto the stack before modifying PC to point to the target address.
 

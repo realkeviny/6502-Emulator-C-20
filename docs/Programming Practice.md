@@ -90,6 +90,10 @@ Byte ReadMemory(uint32_t Address) {
 }
 ```
 
+# Unit Test
+
+**Test Fixture:** A way of making a test that has some preset data.
+
 # Notes
 
 When I try to get something to work, I write a bit of inline code, which would be loaded from disk.
