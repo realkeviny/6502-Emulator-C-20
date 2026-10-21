@@ -5,7 +5,7 @@
 - **System Dependency** The 6502 **cannot operate without memory**. To execute any instructions, the CPU minimum requirements include:
   - **Zero Page (`$0000 - $00FF`)**: Most core instructions directly rely on it for operands and addressing.
   - **Stack Pointer (SP)**: Must point to a valid memory region to handle stack operations and execution context.
-  - **Stack Memory (`$0100 - $01FF`)**: Physical memory area required by the **Stack Pointer (SP)** to execute subroutine calls (`JSR`/`RTS`) and stack operations (`PHA`/`PLA`).
+  - **Stack Memory (`$0100 - $01FF`)**: Physical memory area required by the **Stack Pointer (SP)** to execute subroutine calls (`JSR`) and stack operations.
   - **Program & User RAM (`$0200+`)**: Additional memory required to load actual code and user data.
 
 # Architecture(As a little-endian)
@@ -184,4 +184,4 @@ Cycle Summary (6 Cycles):
 
 Expected Effect: Executes a jump to a subroutine (e.g., $7777), pushing the return address onto the stack before modifying PC to point to the target address.
 
-**Note:** As a Little-Endian processor, the first byte read from memory for a 16-bit word is always the Least Significant Byte (LSB).
+**Note:** As a Little-Endian processor, the first byte read from memory for a 16-bit word is always the Least Significat Byte (LSB).

@@ -39,7 +39,7 @@ export {
             return Data[Address];
         }
 
-        void WriteWord(Word Value, std::uint32_t Address, std::uint32_t &NumOfCycles)
+        void WriteWord(Word Value, std::uint32_t Address, std::int32_t &NumOfCycles)
         {
             Data[Address] = Value & 0xFF;
             Data[Address + 1] = (Value >> 8);
@@ -75,7 +75,7 @@ export {
             Mbar.init();
         }
 
-        Byte FetchByte(std::uint32_t &NumofCycles, Memory &Mbar)
+        Byte FetchByte(std::int32_t &NumofCycles, Memory &Mbar)
         {
             Byte Data{Mbar[PC]};
             PC++;
@@ -83,7 +83,7 @@ export {
             return Data;
         }
 
-        Word FetchWord(std::uint32_t &NumofCycles, Memory &Mbar)
+        Word FetchWord(std::int32_t &NumofCycles, Memory &Mbar)
         {
             Word Data{Mbar[PC]};
             PC++;
@@ -99,7 +99,7 @@ export {
             return Data;
         }
 
-        Byte ReadByte(std::uint32_t &NumOfCycles, Byte Address, Memory &Mbar)
+        Byte ReadByte(std::int32_t &NumOfCycles, Byte Address, Memory &Mbar)
         {
             Byte Data{Mbar[Address]};
             NumOfCycles--;
@@ -117,9 +117,9 @@ export {
         }
 
         // Return the number of cycles that were used
-        std::int32_t Execute(std::uint32_t NumOfCycles, Memory &Mbar)
+        std::int32_t Execute(std::int32_t NumOfCycles, Memory &Mbar)
         {
-            const std::uint32_t CyclesRequested(NumOfCycles);
+            const std::int32_t CyclesRequested(NumOfCycles);
             while (NumOfCycles > 0)
             {
                 Byte Instruction{FetchByte(NumOfCycles, Mbar)};
