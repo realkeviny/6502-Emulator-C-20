@@ -16,8 +16,8 @@ if(ENABLE_LTO)
     include(LTO)
 endif()
 
-option(USE_CPM "Use CPM?" ON)
-option(USE_CONAN "Use Conan?" OFF)
+option(USE_CPM "Use CPM?" OFF)
+option(USE_CONAN "Use Conan?" ON)
 
 if(USE_CPM)
     message(STATUS "Activate CPM")

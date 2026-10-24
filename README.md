@@ -1,27 +1,59 @@
 # 6502-Emulator-C++20
 
-A cycle-accurate MOS 6502 CPU emulator core written in C++20.
+A modular MOS 6502 CPU emulator core built with modern C++20 modules and automated unit testing.
 
-**Status:** Work in progress.
+## Overview
 
-## Currently Implemented
+A modern C++ implementation of the MOS 6502 processor, designed with clean architectural boundaries and test-driven verification.
 
-- Core execution loop and cycle-accurate step logic.
-- Memory bus interface (`Membar`).
-- Standard reset sequence initialization (`$FFFC`).
-- Basic addressing modes: Immediate, Zeropage, Zeropage X, Absolute.
-- Core instructions: `LDA`, `JSR`.
+**Status**: Work in progress.
+
+## Current Progress
+
+- **Addressing Modes**: Immediate, Zero Page, Zero Page X, Absolute, Indirect Indexed, Indexed Indirect
+- **Core Instructions**: `LDA`, `JSR` (fully verified with flag logic)
 
 ## Build
 
-Requires C++20 compatible compiler and CMake.
+### Option 1: CPM / FetchContent
+
+**Requirements**:
+
+- A compiler supporting the latest C++ standards (C++20 / C++23)
+- CMake (3.28+)
 
 ```bash
-mkdir build && cd build
+mkdir build
+cd build
 cmake ..
-make
+cmake --build .
+```
+
+### Option 2: Conan 2
+
+**Requirements**:
+
+- Python (3.8+)
+- A compiler supporting the latest C++ standards
+- CMake (3.28+)
+- Make
+
+```bash
+make conan_d   # for Debug build
+# or: make conan_r for Release build
+
+cd build
+cmake ..
+cmake --build .
+```
+
+**Tip**: For users who prefer storing Conan profiles and packages outside the system drive:
+
+```powershell
+[System.Environment]::SetEnvironmentVariable('CONAN_HOME', '..Place You Like..', 'User')
 ```
 
 ## Documentation
 
 See `Notes.md` for technical design notes and execution logic details.
+
