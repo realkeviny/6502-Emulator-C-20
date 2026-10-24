@@ -156,6 +156,89 @@ The address to be accessed by an instruction is indexed using zero page.
 
 **Note:** The address calculation wraps around if the sum of the base address and the register exceed $FF.
 
+**Addressing Mode: Absolute X**
+
+```
+memory[base_address + X]` or `base_address[X]
+```
+
+The CPU takes a full 16-bit base address from the instruction and adds the current value of the **X register** to find the final target address in memory. 
+
+**Page Crossing**
+
+A 16-bit address is split into two halves: **Low Byte** and **High Byte**.
+
+**Step 1 (Low Byte Addition):**
+
+- The CPU adds the 8-bit `X` register directly to the **Low Byte**.
+- If the result is 255 or less, it stays within the current page. The High Byte is already valid, so the operation completes in **4 cycles**.
+
+**Step 2 (Page Boundary Crossed):**
+
+- If the addition of the X register creates a value bigger than 255, **the target address crosses the page boundary**.
+- An internal carry notifies the CPU: *"A value bigger than 255 is created, so I need to go and add it to the high byte, and fix it."*
+
+**Step 3 (The Extra Cycle):**
+
+- Normally, the High Byte doesn't require fixing.
+
+- However, because the address crossed into the next page, the CPU must spend **1 extra clock cycle** just to increment and fix that High Byte before reading the data (total: **5 cycles**).
+
+> **Rule:**If `Low Byte + X > 255`, the CPU needs an extra clock cycle just to fix the high byte.
+>
+> **Rule:**If adding `X` makes the target address cross a page boundary, the carry notification forces an extra cycle to fix the high byte.
+
+**Addressing Mode: Indexed Indirect (`($nn, X)`)**
+
+- **Mental Model:** A pointer table lookup: `*pointer_table[X]`
+
+- **Summary:** The instruction gives a Zero Page base address. Adding `X` points to a 16-bit address (a **Vector**) stored in Zero Page. The CPU reads that Vector to get the final target address (**Effective Address**) in memory.
+
+- #### **Step-by-Step Execution (Example: `LDA ($02, X)` with `X = 4`)**
+
+  1. **Step 1: Calculate the Vector (Zero Page pointer)**
+
+     - Add `X` directly to the instruction's Zero Page address:
+
+       `$02 + 4 = $06`
+
+     - The Vector is at `$0006`.
+
+  2. **Step 2: Read the Effective Address from the Vector**
+
+     - Read 2 consecutive bytes starting at the Vector address (Little-Endian):
+       - Low Byte at `$0006`: e.g., `$00`
+       - High Byte at `$0007`: e.g., `$80`
+     - Combine them into a full 16-bit address: **`$8000`**.
+
+  3. **Step 3: Access the Final Data**
+
+     - The CPU goes to `$8000` and reads the value into the Accumulator (`A`).
+
+Addressing Mode: Indrirect Indexed
+
+**Addressing Mode: Indirect Index (`($nn), Y`)**
+
+**Mental Model:** Pointer offset / array indexing: `ptr[Y]` or `*(ptr + Y)`
+
+**Summary:** The instruction gives a Zero Page address containing a 16-bit base pointer. The CPU reads this pointer and adds the `Y` register to it to calculate the final effective address.
+
+#### **Execution Steps (Example: `LDA ($20), Y` with `Y = $05`)**
+
+1. **Fetch Pointer:** The CPU reads a 16-bit address from Zero Page `$20` and `$21` (e.g., `$4000`).
+
+2. **Add Y:** The CPU adds the 8-bit `Y` register to that 16-bit base address:
+
+   `$4000 + $05 = $4005`
+
+3. **Access Target:** The CPU reads the data from `$4005` into the Accumulator.
+
+4. #### **Page Boundary & Timing Rules**
+
+   - **Base Cycles (Read instructions):** **5 cycles** if within the same page.
+   - **Page Crossing Penalty:** If adding `Y` makes the target address cross the page boundary (Low Byte + Y > 255), the CPU needs **1 extra cycle** to fix the high byte (total: **6 cycles**).
+   - **Write instructions (e.g., `STA`):** Always take **6 cycles** regardless of page crossing.
+
 # Jump to Subroutine(JSR)
 
 ![JSR opcode table](F:\6502-Emulator-C-20\JSR opcode table.png)

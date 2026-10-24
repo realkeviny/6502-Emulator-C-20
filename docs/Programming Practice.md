@@ -94,6 +94,30 @@ Byte ReadMemory(uint32_t Address) {
 
 **Test Fixture:** A way of making a test that has some preset data.
 
+# C++20 Modules Standards, Partitioning & Implementation Architecture
+
+### 1. Partition Naming & File Roles 
+
+**Interface Partition (`.ixx`)**:  
+
+```c++
+export module cpu:memory;
+```
+
+**Implementation Unit (`.cpp`)**:
+
+```c++
+module cpu; // Correct: binds to the primary module // 
+
+module cpu:memory; //Duplicate partition identifier
+```
+
+### Why `module cpu:memory;` Breaks in `.cpp`
+
+In C++20, partition names must be unique within a module. Since `Memory.ixx` already took `:memory` as an interface partition (`export module cpu:memory;`), writing `module cpu:memory;` in `MemoryImpl.cpp` backs the compiler into a dead end:
+
+1. **Duplicate name**: You cannot have two partitions named `:memory` in module `cpu`.
+
 # Notes
 
 When I try to get something to work, I write a bit of inline code, which would be loaded from disk.
