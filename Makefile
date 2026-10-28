@@ -10,7 +10,6 @@ clean:
 dependency:
 	cd build && cmake .. --graphviz=graph.dot && dot -Tpng graph.dot -o graphimage.png
 
-# 依赖 prepare 目标：执行前自动清理并重建 build
 conan_d: prepare
 	cd build && conan install .. -s build_type=Debug -s compiler.cppstd=23 --output-folder=. --build=missing
 
