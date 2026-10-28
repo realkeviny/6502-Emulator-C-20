@@ -35,6 +35,7 @@ struct CPU
     Byte ReadByte(std::int32_t &NumOfCycles, Word Address, Memory &Mbar);
     Word ReadWord(std::int32_t &NumOfCycles, Word Address, Memory &Mbar);
 
+    // LDA
     static constexpr Byte INST_LDA_IMM{0xA9};  // LDA Immediate Addressing Mode
     static constexpr Byte INST_LDA_ZRP{0xA5};  // LDA Zero Page Addressing Mode
     static constexpr Byte INST_LDA_ZRPX{0xB5}; // LDA Zero Page X Addressing Mode
@@ -43,8 +44,76 @@ struct CPU
     static constexpr Byte INST_LDA_ABSY{0xB9}; // LDA Absolute Y Addressing Mode
     static constexpr Byte INST_LDA_INDX{0xA1}; // LDA Indexed Indirect X Addressing Mode
     static constexpr Byte INST_LDA_INDY{0xB1}; // LDA Indirect Indexed Y Addressing Mode
-    static constexpr Byte INST_JSR{0x20};      // JSR
 
-    void LDAStatusSet();
+    // LDX
+    static constexpr Byte INST_LDX_IMM{0xA2};  // LDX Immediate Addressing Mode
+    static constexpr Byte INST_LDX_ZRP{0xA6};  // LDX Zero Page Addressing Mode
+    static constexpr Byte INST_LDX_ZRPY{0xB6}; // LDX Zero Page Y Addressing Mode
+    static constexpr Byte INST_LDX_ABS{0xAE};  // LDX Absolute Addressing Mode
+    static constexpr Byte INST_LDX_ABSY{0xBE}; // LDX Absolute Y Addressing Mode
+
+    // LDY
+    static constexpr Byte INST_LDY_IMM{0xA0};  // LDY Immediate Addressing Mode
+    static constexpr Byte INST_LDY_ZRP{0xA4};  // LDY Zero Page Addressing Mode
+    static constexpr Byte INST_LDY_ZRPX{0xB4}; // LDY Zero Page X Addressing Mode
+    static constexpr Byte INST_LDY_ABS{0xAC};  // LDY Absolute Addressing Mode
+    static constexpr Byte INST_LDY_ABSX{0xBC}; // LDY Absolute X Addressing Mode
+
+    static constexpr Byte INST_JSR{0x20}; // JSR
+
+    /**
+     * @brief Set the correct Processor Status After a Load Register Instruction(LDA, LDX, LDY)
+     * @param RegisterToSet The value of register A, X, or Y.
+     */
+    void LoadRegisterStatusSet(MOS6502::Byte RegisterToSet);
+
+    /**
+     * @brief Addressing Mode: Zero Page
+     * @param NumOfCycles
+     * @param Mbar
+     * @return Word
+     */
+    Word AddrZeroPage(std::int32_t &NumOfCycles, Memory &Mbar);
+
+    /**
+     * @brief Addressing Mode: Zero Page + X offset
+     * @param NumOfCycles
+     * @param Mbar
+     * @return Word
+     */
+    Word AddrZeroPageX(std::int32_t &NumOfCycles, Memory &Mbar);
+
+    /**
+     * @brief Addressing Mode: Zero Page + Y offset
+     * @param NumOfCycles
+     * @param Mbar
+     * @return Word
+     */
+    Word AddrZeroPageY(std::int32_t &NumOfCycles, Memory &Mbar);
+
+    /**
+     * @brief Addressing Mode: Absolute
+     * @param NumOfCycles
+     * @param Mbar
+     * @return Word
+     */
+    Word AddrAbs(std::int32_t &NumOfCycles, Memory &Mbar);
+
+    /**
+     * @brief Addressing Mode: Absolute + X offset
+     *
+     * @param NumOfCycles
+     * @param Mbar
+     * @return Word
+     */
+    Word AddrAbsX(std::int32_t &NumOfCycles, Memory &Mbar);
+
+    /**
+     * @brief Addressing Mode: Absolute + Y offset
+     * @param NumOfCycles
+     * @param Mbar
+     * @return Word
+     */
+    Word AddrAbsY(std::int32_t &NumOfCycles, Memory &Mbar);
 };
 } // namespace MOS6502

@@ -94,6 +94,8 @@ Byte ReadMemory(uint32_t Address) {
 
 **Test Fixture:** A way of making a test that has some preset data.
 
+For unit testing, if I got a problem, don't fix it immediately, ensure that relevant unit test could fail. Or that's not a good unit test.
+
 # C++20 Modules Standards, Partitioning & Implementation Architecture
 
 ### 1. Partition Naming & File Roles 
